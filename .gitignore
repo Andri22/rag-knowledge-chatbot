@@ -71,6 +71,7 @@ data/processed/
 *.csv
 *.xlsx
 *.txt
+!requirements.txt
 !data/sample_docs/*.pdf
 !data/sample_docs/*.txt
 
