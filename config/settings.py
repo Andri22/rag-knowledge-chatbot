@@ -31,7 +31,7 @@ EMBEDDING_MODEL = "text-embedding-3-small"
 # LLM_MODEL = "gpt-4o-mini"
 
 LLM_PROVIDER = "groq"  # Ubah dari "openai"
-LLM_MODEL = "llama-3.1-70b-versatile"  # Model Groq
+LLM_MODEL = "llama-3.1-8b-instant"  # Model Groq
 
 LLM_TEMPERATURE = 0.2
 LLM_MAX_TOKENS = 1024
