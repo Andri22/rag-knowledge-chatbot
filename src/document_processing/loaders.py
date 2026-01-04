@@ -2,6 +2,7 @@ from pypdf import PdfReader
 from pathlib import Path
 from docx import Document
 from src.utils.logger import get_logger
+from src.utils.error_handler import DocumentProcessingError
 
 logger = get_logger(__name__)
 
@@ -31,7 +32,7 @@ def loadfile(file_input):
             result = "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
         else:
             logger.error(f"Unsupported file type: {ext}")
-            raise ValueError(f"Unsupported file type: {ext}")
+            raise DocumentProcessingError(f"Unsupported file type: {ext}")
     else:
         try:
             ext = Path(file_input).suffix.lower()
@@ -48,9 +49,9 @@ def loadfile(file_input):
                 result = "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
             else:
                 logger.error(f"Unsupported file type: {ext}")
-                raise ValueError(f"Unsupported file type: {ext}")
+                raise DocumentProcessingError(f"Unsupported file type: {ext}")
         except FileNotFoundError:
             logger.error(f"File not found: {file_input}")
-            raise FileNotFoundError(f"File not found: {file_input}")
+            raise DocumentProcessingError(f"File not found: {file_input}")
     logger.debug(f"Extracted {len(result)} characters")
     return result

@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from config.settings import GROQ_API_KEY, LLM_MODEL
 from src.utils.logger import get_logger
-
+from src.utils.error_handler import GenerationError
 logger = get_logger(__name__)
 from groq import Groq
 
@@ -25,4 +25,4 @@ def generate_response(prompt: str) -> str:
 
     except Exception as e:
         logger.error(f"Failed to generate response: {str(e)}")
-        raise RuntimeError(f"Failed to generate response: {str(e)}")
+        raise GenerationError(f"Failed to generate response: {str(e)}")

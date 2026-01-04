@@ -2,6 +2,7 @@ from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from config.settings import QDRANT_URL, QDRANT_API_KEY
 from src.utils.logger import get_logger
+from src.utils.error_handler import VectorStoreError
 
 logger = get_logger(__name__)
 
@@ -50,6 +51,7 @@ def delete_by_source(collection_name: str, source: str):
         )
     except Exception as e:
         logger.error(f"Failed to delete documents from collection '{collection_name}': {str(e)}")
+        raise VectorStoreError(f"Failed to delete documents from collection '{collection_name}': {str(e)}")
 
 def list_sources(collection_name: str) -> list[str]:
     """List semua file yang sudah di-index"""
