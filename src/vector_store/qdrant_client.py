@@ -15,12 +15,28 @@ def create_collection(name: str, vector_size: int = 1536):
     collections = [c.name for c in client.get_collections().collections]
     if name in collections:
         logger.info(f"Collection '{name}' already exists, skipping creation")
+        # Pastikan index ada (kalau belum)
+        try:
+            client.create_payload_index(
+                collection_name=name,
+                field_name="source",
+                field_schema="keyword"
+            )
+        except Exception:
+            pass  # Index mungkin sudah ada
         return False
-    
+
     client.create_collection(
         collection_name=name,
         vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
     )
+    
+    client.create_payload_index(
+        collection_name=name,
+        field_name="source",
+        field_schema="keyword"
+    )
+
     logger.info(f"Collection '{name}' created successfully")
     return True
 
@@ -36,6 +52,17 @@ def add_documents(collection_name: str, chunks: list[str], embeddings: list, sou
 
 def delete_by_source(collection_name: str, source: str):
     """Hapus semua points dari file tertentu"""
+    try:
+        existing_sources = list_sources(collection_name)
+    except Exception:
+        logger.info(f"Collection '{collection_name}' not ready, skipping delete")
+        return 
+
+    # Cek apakah source ada
+    if source not in existing_sources:
+        logger.info(f"Source '{source}' not found, nothing to delete")
+        return  # Skip, tidak perlu delete
+
     try:
         client = get_client()
         client.delete(
