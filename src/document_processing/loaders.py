@@ -1,15 +1,21 @@
 from pypdf import PdfReader
 from pathlib import Path
 from docx import Document
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def load_multiple_files(file_input):
+    logger.info(f"Loading multiple files: {len(file_input)} files")
     results = ""
     for file in file_input:
         results += loadfile(file) + "\n"
+    logger.info("All files loaded")
     return results
     
 def loadfile(file_input):
-
+    logger.info(f"Loading file: {file_input}")
+    result = ""
     if hasattr(file_input, 'read'):
         file_name = file_input.name
         ext = Path(file_name).suffix.lower()
@@ -17,13 +23,14 @@ def loadfile(file_input):
             reader = PdfReader(file_input)
             pages = [page.extract_text() for page in reader.pages]
             pages = [p for p in pages if p is not None]
-            return "\n".join(pages)
+            result = "\n".join(pages)
         elif ext == ".txt":
-            return file_input.read().decode("utf-8")
+            result = file_input.read().decode("utf-8")
         elif ext in [".doc", ".docx"]:
             doc = Document(file_input)
-            return "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
+            result = "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
         else:
+            logger.error(f"Unsupported file type: {ext}")
             raise ValueError(f"Unsupported file type: {ext}")
     else:
         try:
@@ -32,14 +39,18 @@ def loadfile(file_input):
                 reader = PdfReader(file_input)
                 pages = [page.extract_text() for page in reader.pages]
                 pages = [p for p in pages if p is not None] 
-                return "\n".join(pages)
+                result = "\n".join(pages)
             elif ext == ".txt":
                 with open(file_input, "r") as f:
-                    return f.read()
+                    result = f.read()
             elif ext in [".doc", ".docx"]:
                 doc = Document(file_input)
-                return "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
+                result = "\n".join([paragraph.text for paragraph in doc.paragraphs if paragraph.text is not None])
             else:
+                logger.error(f"Unsupported file type: {ext}")
                 raise ValueError(f"Unsupported file type: {ext}")
         except FileNotFoundError:
+            logger.error(f"File not found: {file_input}")
             raise FileNotFoundError(f"File not found: {file_input}")
+    logger.debug(f"Extracted {len(result)} characters")
+    return result

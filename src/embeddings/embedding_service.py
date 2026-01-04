@@ -3,9 +3,13 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 from config.settings import EMBEDDING_MODEL
+from src.utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 def get_openai_embedding(text: str) -> list[float]:
+    logger.info("Generating OpenAI embedding...")
+    embedding = None
     if not text:
         raise ValueError("Text must not be empty")
 
@@ -15,6 +19,10 @@ def get_openai_embedding(text: str) -> list[float]:
             input=text,
             model=EMBEDDING_MODEL
         )
-        return response.data[0].embedding
+        embedding = response.data[0].embedding
+        logger.info("OpenAI embedding generated successfully")
+        logger.debug(f"Embedding generated: {len(embedding)} dimensions")
+        return embedding
     except Exception as e:
+        logger.error(f"Failed to get OpenAI embedding: {str(e)}")
         raise RuntimeError(f"Failed to get OpenAI embedding: {str(e)}")

@@ -1,6 +1,9 @@
 from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from config.settings import QDRANT_URL, QDRANT_API_KEY
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def get_client():
     return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
@@ -10,13 +13,14 @@ def create_collection(name: str, vector_size: int = 1536):
     # Cek apakah collection sudah ada
     collections = [c.name for c in client.get_collections().collections]
     if name in collections:
-        print(f"Collection '{name}' sudah ada, skip create")
+        logger.info(f"Collection '{name}' already exists, skipping creation")
         return False
     
     client.create_collection(
         collection_name=name,
         vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
     )
+    logger.info(f"Collection '{name}' created successfully")
     return True
 
 def add_documents(collection_name: str, chunks: list[str], embeddings: list, source: str):
@@ -26,6 +30,7 @@ def add_documents(collection_name: str, chunks: list[str], embeddings: list, sou
         for i, (chunk, emb) in enumerate(zip(chunks, embeddings))
     ]
     client.upsert(collection_name=collection_name, points=points)
+    logger.info(f"Documents added to collection '{collection_name}'")
     return len(chunks)
 
 def delete_by_source(collection_name: str, source: str):
@@ -44,7 +49,7 @@ def delete_by_source(collection_name: str, source: str):
             )
         )
     except Exception as e:
-        print(f"Skip delete (no data or index): {source}")
+        logger.error(f"Failed to delete documents from collection '{collection_name}': {str(e)}")
 
 def list_sources(collection_name: str) -> list[str]:
     """List semua file yang sudah di-index"""
@@ -62,4 +67,5 @@ def list_sources(collection_name: str) -> list[str]:
         if point.payload and "source" in point.payload:
             sources.add(point.payload["source"])
     
+    logger.info(f"Found {len(sources)} unique sources in collection '{collection_name}'")
     return list(sources)

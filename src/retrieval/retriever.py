@@ -2,6 +2,9 @@
 from src.vector_store.qdrant_client import get_client
 from config.settings import COLLECTION_NAME
 from src.embeddings.embedding_service import get_openai_embedding
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def search(query: str, top_k: int, similarity_threshold: float) -> list[dict]:
     """
@@ -17,4 +20,5 @@ def search(query: str, top_k: int, similarity_threshold: float) -> list[dict]:
         limit=top_k
     ).points
     filtered_results = [r for r in results if r.score >= similarity_threshold]
+    logger.info(f"Found {len(filtered_results)} results for query '{query}'")
     return [{"text": r.payload["text"], "score": r.score,"source": r.payload["source"]} for r in filtered_results]
