@@ -46,7 +46,7 @@ CHUNK_OVERLAP = 100
 # RETRIEVAL
 # =====================
 TOP_K = 5
-SIMILARITY_THRESHOLD = 0.6
+SIMILARITY_THRESHOLD = 0.5
 
 # =====================
 # FEATURE FLAGS
