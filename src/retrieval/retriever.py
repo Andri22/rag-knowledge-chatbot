@@ -22,7 +22,7 @@ def search(query: str, top_k: int, similarity_threshold: float) -> list[dict]:
         ).points
         filtered_results = [r for r in results if r.score >= similarity_threshold]
         logger.info(f"Found {len(filtered_results)} results for query '{query}'")
-        return [{"text": r.payload["text"], "score": r.score,"source": r.payload["source"]} for r in filtered_results]
+        return [{"text": r.payload["text"], "score": r.score, "source": r.payload["source"], "filename": r.payload.get("filename")} for r in filtered_results]
     except Exception as e:
         logger.error(f"Failed to search: {str(e)}")
-        raise RetrievalError(f"Failed to search: {str(e)}")
+        raise RetrievalError(f"Failed to search: {str(e)}") 

@@ -3,6 +3,7 @@ from pathlib import Path
 from docx import Document
 from src.utils.logger import get_logger
 from src.utils.error_handler import DocumentProcessingError
+from src.document_processing.preprocessor import normalize_text
 
 logger = get_logger(__name__)
 
@@ -54,4 +55,5 @@ def loadfile(file_input):
             logger.error(f"File not found: {file_input}")
             raise DocumentProcessingError(f"File not found: {file_input}")
     logger.debug(f"Extracted {len(result)} characters")
+    result = normalize_text(result)
     return result

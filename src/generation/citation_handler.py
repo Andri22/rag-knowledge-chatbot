@@ -7,17 +7,21 @@ def add_citations(response: str, sources: list[dict]) -> str:
     formatted = response.strip()
     
     citation_map = {}
+    seen_files = set()  # Track unique filenames
     lines_to_append = []
+    citation_num = 0
     
-    for i, src in enumerate(sources, start=1):
+    for src in sources:
         text = src.get("text")
-        source_file = src.get("source")
-        if text and source_file:
+        source_file = src.get("filename") or src.get("source")
+        if text and source_file and source_file not in seen_files:
+            citation_num += 1
+            seen_files.add(source_file)
             pattern = re.escape(text)
             if pattern in formatted:
-                formatted = re.sub(pattern, f"{text} [{i}]", formatted)
-            citation_map[text] = i
-            lines_to_append.append(f"[{i}] {source_file}")
+                formatted = re.sub(pattern, f"{text} [{citation_num}]", formatted)
+            citation_map[text] = citation_num
+            lines_to_append.append(f"[{citation_num}] {source_file}")
     
     if lines_to_append:
         formatted += "\n\n📚 References:\n" + "\n".join(lines_to_append)

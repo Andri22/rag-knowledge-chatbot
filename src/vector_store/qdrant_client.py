@@ -40,10 +40,10 @@ def create_collection(name: str, vector_size: int = 1536):
     logger.info(f"Collection '{name}' created successfully")
     return True
 
-def add_documents(collection_name: str, chunks: list[str], embeddings: list, source: str):
+def add_documents(collection_name: str, chunks: list[str], embeddings: list, source: str, filename: str = None):
     client = get_client()
     points = [
-        PointStruct(id=i, vector=emb, payload={"text": chunk, "source": source})
+        PointStruct(id=i, vector=emb, payload={"text": chunk, "source": source, "filename": filename or source})
         for i, (chunk, emb) in enumerate(zip(chunks, embeddings))
     ]
     client.upsert(collection_name=collection_name, points=points)
