@@ -39,4 +39,5 @@ def extract_chunk_metadata(text: str, chunk_index: int) -> dict:
         "char_count": len(text),
         "word_count": len(text.split()),
     }
+    logger.info(f"Chunk metadata: {metadata}")
     return metadata
